@@ -381,7 +381,7 @@ const translations = {
 };
 
 const supportedLangs = ["uz", "ru", "en"];
-let currentLang = localStorage.getItem("lang") || "uz";
+let currentLang = (typeof localStorage !== "undefined" ? localStorage.getItem("lang") : null) || "uz";
 if (!supportedLangs.includes(currentLang)) currentLang = "uz";
 
 function applyTheme(theme) {
