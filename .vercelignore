@@ -1,8 +1,15 @@
-node_modules
-.git
+node_modules/
+.git/
 .env
 .env.local
+.env.*.local
+.vercel/
 server.js
 package-lock.json
 README.md
 .DS_Store
+.gitignore
+.env.example
+images/
+.git
+

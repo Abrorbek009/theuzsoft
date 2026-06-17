@@ -8,7 +8,7 @@ const langButtons = typeof document !== "undefined" ? Array.from(document.queryS
 const revealItems = typeof document !== "undefined" ? Array.from(document.querySelectorAll(".reveal")) : [];
 const counters = typeof document !== "undefined" ? Array.from(document.querySelectorAll("[data-count]")) : [];
 const contactForm = typeof document !== "undefined" ? document.querySelector(".contact-form") : null;
-const contactSubmitButton = contactForm?.querySelector('button[type="submit"]');
+const contactSubmitButton = typeof document !== "undefined" && contactForm ? contactForm.querySelector('button[type="submit"]') : null;
 
 // Theme toggle handler
 if (typeof document !== "undefined" && themeToggleById) {
@@ -381,10 +381,12 @@ const translations = {
 };
 
 const supportedLangs = ["uz", "ru", "en"];
-let currentLang = (typeof localStorage !== "undefined" ? localStorage.getItem("lang") : null) || "uz";
+let currentLang = typeof localStorage !== "undefined" ? (localStorage.getItem("lang") || "uz") : "uz";
 if (!supportedLangs.includes(currentLang)) currentLang = "uz";
 
 function applyTheme(theme) {
+  if (typeof document === "undefined") return;
+  
   const icon = themeToggle?.querySelector("i");
   const dark = theme === "dark";
 

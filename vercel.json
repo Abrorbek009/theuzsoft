@@ -2,10 +2,26 @@
   "version": 2,
   "buildCommand": "echo 'Static site'",
   "outputDirectory": ".",
+  "public": false,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, s-maxage=3600"
+        }
+      ]
+    }
+  ],
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "source": "/api/contact",
+      "destination": "/api/contact.js"
+    },
+    {
+      "source": "/",
+      "destination": "/index.html"
     },
     {
       "source": "/:path*",
