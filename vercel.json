@@ -1,15 +1,16 @@
 {
   "version": 2,
+  "public": true,
   "buildCommand": "echo 'Static site'",
   "outputDirectory": ".",
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1.js"
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/:path*",
+      "destination": "/index.html"
     }
   ]
 }

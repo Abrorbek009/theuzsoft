@@ -1,0 +1,8 @@
+node_modules
+.git
+.env
+.env.local
+server.js
+package-lock.json
+README.md
+.DS_Store
