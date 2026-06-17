@@ -1,17 +1,17 @@
-   // DOM Elements
-const themeToggle = document.querySelector(".theme-btn");
-const themeToggleById = document.getElementById('themeToggle');
-const navToggle = document.querySelector(".nav-toggle");
-const header = document.querySelector(".site-header");
-const navLinks = Array.from(document.querySelectorAll(".nav-link"));
-const langButtons = Array.from(document.querySelectorAll(".lang-btn"));
-const revealItems = Array.from(document.querySelectorAll(".reveal"));
-const counters = Array.from(document.querySelectorAll("[data-count]"));
-const contactForm = document.querySelector(".contact-form");
+// DOM Elements - only in browser
+const themeToggle = typeof document !== "undefined" ? document.querySelector(".theme-btn") : null;
+const themeToggleById = typeof document !== "undefined" ? document.getElementById('themeToggle') : null;
+const navToggle = typeof document !== "undefined" ? document.querySelector(".nav-toggle") : null;
+const header = typeof document !== "undefined" ? document.querySelector(".site-header") : null;
+const navLinks = typeof document !== "undefined" ? Array.from(document.querySelectorAll(".nav-link")) : [];
+const langButtons = typeof document !== "undefined" ? Array.from(document.querySelectorAll(".lang-btn")) : [];
+const revealItems = typeof document !== "undefined" ? Array.from(document.querySelectorAll(".reveal")) : [];
+const counters = typeof document !== "undefined" ? Array.from(document.querySelectorAll("[data-count]")) : [];
+const contactForm = typeof document !== "undefined" ? document.querySelector(".contact-form") : null;
 const contactSubmitButton = contactForm?.querySelector('button[type="submit"]');
 
 // Theme toggle handler
-if (themeToggleById) {
+if (typeof document !== "undefined" && themeToggleById) {
   themeToggleById.addEventListener('click', function() {
     document.body.classList.toggle('dark-mode');
     themeToggleById.classList.toggle('active');
@@ -27,14 +27,16 @@ if (themeToggleById) {
 }
 
 // Language switcher
-const langSwitcher = document.getElementById('langSwitcher');
-if (langSwitcher) {
-  langSwitcher.addEventListener('click', function(e) {
-    if (e.target.classList.contains('lang')) {
-      document.querySelectorAll('.lang').forEach(btn => btn.classList.remove('active'));
-      e.target.classList.add('active');
-    }
-  });
+if (typeof document !== "undefined") {
+  const langSwitcher = document.getElementById('langSwitcher');
+  if (langSwitcher) {
+   langSwitcher.addEventListener('click', function(e) {
+     if (e.target.classList.contains('lang')) {
+       document.querySelectorAll('.lang').forEach(btn => btn.classList.remove('active'));
+       e.target.classList.add('active');
+     }
+   });
+  }
 }
 
 const translations = {
@@ -399,6 +401,8 @@ function applyTheme(theme) {
 }
 
 function applyLanguage(lang) {
+  if (typeof document === "undefined") return;
+  
   const dict = translations[lang] || translations.uz;
   document.documentElement.lang = lang;
 
@@ -417,18 +421,24 @@ function applyLanguage(lang) {
   });
 
   currentLang = lang;
-  localStorage.setItem("lang", lang);
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem("lang", lang);
+  }
   applyTextMotion();
 }
 
 function setLanguage(lang) {
+  if (typeof document === "undefined") return;
+  
   document.querySelectorAll("[data-i18n]").forEach(el => {
     const key = el.getAttribute("data-i18n");
     const icon = el.querySelector("i");
     const dict = translations[lang] || translations.uz;
     el.innerHTML = icon ? icon.outerHTML + " " + (dict[key] || "") : (dict[key] || "");
   });
-  localStorage.setItem("selectedLang", lang);
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem("selectedLang", lang);
+  }
   currentLang = lang;
 }
 
@@ -540,29 +550,37 @@ function validatePhone(value) {
   return digits.length >= 9 && digits.length <= 15;
 }
 
-applyTheme(localStorage.getItem("theme") || "light");
-const savedLang = localStorage.getItem("selectedLang") || localStorage.getItem("lang") || "uz";
-applyLanguage(savedLang);
-setLanguage(savedLang);
+// Only run in browser
+if (typeof document !== "undefined" && typeof window !== "undefined") {
+  const savedTheme = typeof localStorage !== "undefined" ? localStorage.getItem("theme") : "light";
+  applyTheme(savedTheme || "light");
+  
+  const savedLang = typeof localStorage !== "undefined" 
+    ? (localStorage.getItem("selectedLang") || localStorage.getItem("lang") || "uz")
+    : "uz";
+  applyLanguage(savedLang);
+  setLanguage(savedLang);
 
-themeToggle?.addEventListener("click", () => {
-  const nextTheme = document.body.classList.contains("dark-mode") ? "light" : "dark";
-  localStorage.setItem("theme", nextTheme);
-  applyTheme(nextTheme);
-});
+  themeToggle?.addEventListener("click", () => {
+    const nextTheme = document.body.classList.contains("dark-mode") ? "light" : "dark";
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("theme", nextTheme);
+    }
+    applyTheme(nextTheme);
+  });
 
-navToggle?.addEventListener("click", () => {
-  if (header?.classList.contains("nav-open")) closeMenu();
-  else openMenu();
-});
+  navToggle?.addEventListener("click", () => {
+    if (header?.classList.contains("nav-open")) closeMenu();
+    else openMenu();
+  });
 
-navLinks.forEach((link) => {
-  link.addEventListener("click", (event) => {
-    const hash = link.getAttribute("href");
-    if (!hash || !hash.startsWith("#")) return;
-    event.preventDefault();
-    closeMenu();
-    scrollToSection(hash);
+  navLinks.forEach((link) => {
+    link.addEventListener("click", (event) => {
+      const hash = link.getAttribute("href");
+      if (!hash || !hash.startsWith("#")) return;
+      event.preventDefault();
+      closeMenu();
+      scrollToSection(hash);
   });
 });
 
