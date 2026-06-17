@@ -756,16 +756,17 @@ if (contactForm) {
   });
 }
 
-window.addEventListener("scroll", () => {
-  const y = window.scrollY;
-  if (header) header.style.boxShadow = y > 8 ? "0 18px 50px rgba(15,23,42,0.12)" : "none";
-});
+  window.addEventListener("scroll", () => {
+    const y = window.scrollY;
+    if (header) header.style.boxShadow = y > 8 ? "0 18px 50px rgba(15,23,42,0.12)" : "none";
+  });
 
-document.querySelectorAll(".faq-item").forEach((item) => {
-  item.addEventListener("toggle", () => {
-    if (!item.open) return;
-    document.querySelectorAll(".faq-item").forEach((other) => {
-      if (other !== item) other.open = false;
+  document.querySelectorAll(".faq-item").forEach((item) => {
+    item.addEventListener("toggle", () => {
+      if (!item.open) return;
+      document.querySelectorAll(".faq-item").forEach((other) => {
+        if (other !== item) other.open = false;
+      });
     });
   });
-});
+}
