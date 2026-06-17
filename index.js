@@ -1,4 +1,6 @@
+   // DOM Elements
 const themeToggle = document.querySelector(".theme-btn");
+const themeToggleById = document.getElementById('themeToggle');
 const navToggle = document.querySelector(".nav-toggle");
 const header = document.querySelector(".site-header");
 const navLinks = Array.from(document.querySelectorAll(".nav-link"));
@@ -7,6 +9,33 @@ const revealItems = Array.from(document.querySelectorAll(".reveal"));
 const counters = Array.from(document.querySelectorAll("[data-count]"));
 const contactForm = document.querySelector(".contact-form");
 const contactSubmitButton = contactForm?.querySelector('button[type="submit"]');
+
+// Theme toggle handler
+if (themeToggleById) {
+  themeToggleById.addEventListener('click', function() {
+    document.body.classList.toggle('dark-mode');
+    themeToggleById.classList.toggle('active');
+    const icon = themeToggleById.querySelector('i');
+    if (document.body.classList.contains('dark-mode')) {
+      icon.classList.remove('fa-moon');
+      icon.classList.add('fa-sun');
+    } else {
+      icon.classList.remove('fa-sun');
+      icon.classList.add('fa-moon');
+    }
+  });
+}
+
+// Language switcher
+const langSwitcher = document.getElementById('langSwitcher');
+if (langSwitcher) {
+  langSwitcher.addEventListener('click', function(e) {
+    if (e.target.classList.contains('lang')) {
+      document.querySelectorAll('.lang').forEach(btn => btn.classList.remove('active'));
+      e.target.classList.add('active');
+    }
+  });
+}
 
 const translations = {
   uz: {
@@ -392,6 +421,17 @@ function applyLanguage(lang) {
   applyTextMotion();
 }
 
+function setLanguage(lang) {
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    const icon = el.querySelector("i");
+    const dict = translations[lang] || translations.uz;
+    el.innerHTML = icon ? icon.outerHTML + " " + (dict[key] || "") : (dict[key] || "");
+  });
+  localStorage.setItem("selectedLang", lang);
+  currentLang = lang;
+}
+
 function resetTextMotion(node) {
   node.classList.remove("word-animate", "letter-animate");
   node.innerHTML = node.textContent || "";
@@ -501,7 +541,9 @@ function validatePhone(value) {
 }
 
 applyTheme(localStorage.getItem("theme") || "light");
-applyLanguage(currentLang);
+const savedLang = localStorage.getItem("selectedLang") || localStorage.getItem("lang") || "uz";
+applyLanguage(savedLang);
+setLanguage(savedLang);
 
 themeToggle?.addEventListener("click", () => {
   const nextTheme = document.body.classList.contains("dark-mode") ? "light" : "dark";
@@ -526,8 +568,16 @@ navLinks.forEach((link) => {
 
 langButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
+    setLanguage(btn.dataset.lang || "uz");
     applyLanguage(btn.dataset.lang || "uz");
     closeMenu();
+  });
+});
+
+// Additional lang-btn class listener for compatibility
+document.querySelectorAll(".lang-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    setLanguage(btn.dataset.lang || "uz");
   });
 });
 
@@ -652,6 +702,7 @@ if (contactForm) {
     }
     if (note) note.textContent = translations[currentLang].formSending || "Sending...";
 
+    // Send to backend API (which sends to Telegram)
     fetch("/api/contact", {
       method: "POST",
       headers: {
