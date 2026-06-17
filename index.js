@@ -581,180 +581,180 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
       event.preventDefault();
       closeMenu();
       scrollToSection(hash);
+    });
   });
-});
 
-langButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    setLanguage(btn.dataset.lang || "uz");
-    applyLanguage(btn.dataset.lang || "uz");
+  langButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      setLanguage(btn.dataset.lang || "uz");
+      applyLanguage(btn.dataset.lang || "uz");
+      closeMenu();
+    });
+  });
+
+  // Additional lang-btn class listener for compatibility
+  document.querySelectorAll(".lang-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      setLanguage(btn.dataset.lang || "uz");
+    });
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!header?.classList.contains("nav-open")) return;
+    if (header.contains(event.target)) return;
     closeMenu();
   });
-});
 
-// Additional lang-btn class listener for compatibility
-document.querySelectorAll(".lang-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    setLanguage(btn.dataset.lang || "uz");
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 900) closeMenu();
   });
-});
 
-document.addEventListener("click", (event) => {
-  if (!header?.classList.contains("nav-open")) return;
-  if (header.contains(event.target)) return;
-  closeMenu();
-});
-
-window.addEventListener("resize", () => {
-  if (window.innerWidth > 900) closeMenu();
-});
-
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("is-visible");
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.18 }
-);
-
-revealItems.forEach((item) => revealObserver.observe(item));
-
-const counterObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        animateCounter(entry.target);
-        counterObserver.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.5 }
-);
-
-counters.forEach((counter) => {
-  if (counter.textContent.trim() === "24/7") return;
-  counterObserver.observe(counter);
-});
-
-const sectionIds = ["home", "services", "brands", "about", "testimonials", "faq", "contact"];
-const sections = sectionIds.map((id) => document.getElementById(id)).filter(Boolean);
-
-const navObserver = new IntersectionObserver(
-  (entries) => {
-    const visible = entries.filter((entry) => entry.isIntersecting);
-    if (!visible.length) return;
-
-    const active = visible.sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0].target.id;
-    navLinks.forEach((link) => {
-      const hash = link.getAttribute("href");
-      link.classList.toggle("active", hash === `#${active}`);
-    });
-  },
-  { rootMargin: "-35% 0px -55% 0px", threshold: [0.15, 0.3, 0.6] }
-);
-
-sections.forEach((section) => navObserver.observe(section));
-
-if (contactForm) {
-  const fields = Array.from(contactForm.querySelectorAll(".field"));
-  const note = contactForm.querySelector(".form-note");
-
-  contactForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    let firstErrorField = null;
-    const values = new FormData(contactForm);
-    const name = String(values.get("name") || "").trim();
-    const phone = String(values.get("phone") || "").trim();
-    const message = String(values.get("message") || "").trim();
-
-    const validation = [
-      {
-        index: 0,
-        valid: name.length > 0,
-        message: translations[currentLang].nameRequired
-      },
-      {
-        index: 1,
-        valid: phone.length > 0,
-        message: translations[currentLang].phoneRequired
-      },
-      {
-        index: 1,
-        valid: phone.length === 0 || validatePhone(phone),
-        message: translations[currentLang].phoneInvalid
-      },
-      {
-        index: 2,
-        valid: message.length > 0,
-        message: translations[currentLang].messageRequired
-      }
-    ];
-
-    fields.forEach((field) => {
-      const error = field.querySelector(".error");
-      if (error) error.textContent = "";
-    });
-
-    validation.forEach((rule) => {
-      if (rule.valid) return;
-      const field = fields[rule.index];
-      const error = field?.querySelector(".error");
-      if (error && !error.textContent) error.textContent = rule.message;
-      if (!firstErrorField) firstErrorField = field?.querySelector("input, textarea");
-    });
-
-    if (validation.some((rule) => !rule.valid)) {
-      firstErrorField?.focus();
-      if (note) note.textContent = translations[currentLang].formNote;
-      return;
-    }
-
-    const previousLabel = contactSubmitButton?.textContent || "";
-    if (contactSubmitButton) {
-      contactSubmitButton.disabled = true;
-      contactSubmitButton.textContent = translations[currentLang].formSending || "Sending...";
-    }
-    if (note) note.textContent = translations[currentLang].formSending || "Sending...";
-
-    // Send to backend API (which sends to Telegram)
-    fetch("/api/contact", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name,
-        phone,
-        message,
-        language: currentLang
-      })
-    })
-      .then(async (response) => {
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          throw new Error(data.error || "Request failed");
-        }
-        return data;
-      })
-      .then(() => {
-        contactForm.reset();
-        if (note) note.textContent = translations[currentLang].sendSuccess;
-      })
-      .catch(() => {
-        if (note) note.textContent = translations[currentLang].sendError || "Xabar yuborishda xatolik yuz berdi.";
-      })
-      .finally(() => {
-        if (contactSubmitButton) {
-          contactSubmitButton.disabled = false;
-          contactSubmitButton.textContent = previousLabel || translations[currentLang].sendBtn;
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          revealObserver.unobserve(entry.target);
         }
       });
+    },
+    { threshold: 0.18 }
+  );
+
+  revealItems.forEach((item) => revealObserver.observe(item));
+
+  const counterObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.5 }
+  );
+
+  counters.forEach((counter) => {
+    if (counter.textContent.trim() === "24/7") return;
+    counterObserver.observe(counter);
   });
-}
+
+  const sectionIds = ["home", "services", "brands", "about", "testimonials", "faq", "contact"];
+  const sections = sectionIds.map((id) => document.getElementById(id)).filter(Boolean);
+
+  const navObserver = new IntersectionObserver(
+    (entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting);
+      if (!visible.length) return;
+
+      const active = visible.sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0].target.id;
+      navLinks.forEach((link) => {
+        const hash = link.getAttribute("href");
+        link.classList.toggle("active", hash === `#${active}`);
+      });
+    },
+    { rootMargin: "-35% 0px -55% 0px", threshold: [0.15, 0.3, 0.6] }
+  );
+
+  sections.forEach((section) => navObserver.observe(section));
+
+  if (contactForm) {
+    const fields = Array.from(contactForm.querySelectorAll(".field"));
+    const note = contactForm.querySelector(".form-note");
+
+    contactForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      let firstErrorField = null;
+      const values = new FormData(contactForm);
+      const name = String(values.get("name") || "").trim();
+      const phone = String(values.get("phone") || "").trim();
+      const message = String(values.get("message") || "").trim();
+
+      const validation = [
+        {
+          index: 0,
+          valid: name.length > 0,
+          message: translations[currentLang].nameRequired
+        },
+        {
+          index: 1,
+          valid: phone.length > 0,
+          message: translations[currentLang].phoneRequired
+        },
+        {
+          index: 1,
+          valid: phone.length === 0 || validatePhone(phone),
+          message: translations[currentLang].phoneInvalid
+        },
+        {
+          index: 2,
+          valid: message.length > 0,
+          message: translations[currentLang].messageRequired
+        }
+      ];
+
+      fields.forEach((field) => {
+        const error = field.querySelector(".error");
+        if (error) error.textContent = "";
+      });
+
+      validation.forEach((rule) => {
+        if (rule.valid) return;
+        const field = fields[rule.index];
+        const error = field?.querySelector(".error");
+        if (error && !error.textContent) error.textContent = rule.message;
+        if (!firstErrorField) firstErrorField = field?.querySelector("input, textarea");
+      });
+
+      if (validation.some((rule) => !rule.valid)) {
+        firstErrorField?.focus();
+        if (note) note.textContent = translations[currentLang].formNote;
+        return;
+      }
+
+      const previousLabel = contactSubmitButton?.textContent || "";
+      if (contactSubmitButton) {
+        contactSubmitButton.disabled = true;
+        contactSubmitButton.textContent = translations[currentLang].formSending || "Sending...";
+      }
+      if (note) note.textContent = translations[currentLang].formSending || "Sending...";
+
+      // Send to backend API (which sends to Telegram)
+      fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          phone,
+          message,
+          language: currentLang
+        })
+      })
+        .then(async (response) => {
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(data.error || "Request failed");
+          }
+          return data;
+        })
+        .then(() => {
+          contactForm.reset();
+          if (note) note.textContent = translations[currentLang].sendSuccess;
+        })
+        .catch(() => {
+          if (note) note.textContent = translations[currentLang].sendError || "Xabar yuborishda xatolik yuz berdi.";
+        })
+        .finally(() => {
+          if (contactSubmitButton) {
+            contactSubmitButton.disabled = false;
+            contactSubmitButton.textContent = previousLabel || translations[currentLang].sendBtn;
+          }
+        });
+    });
+  }
 
   window.addEventListener("scroll", () => {
     const y = window.scrollY;
